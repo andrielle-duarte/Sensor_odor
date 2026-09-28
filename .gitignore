@@ -1,0 +1,8 @@
+# Ignorar o ficheiro de credenciais do Firebase
+backend_python/serviceAccountKey.json
+backend_python/simulator.py
+
+# Ignorar o ambiente virtual e pastas temporárias
+.venv/
+__pycache__/
+.DS_Store
