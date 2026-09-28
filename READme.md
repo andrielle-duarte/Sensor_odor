@@ -1,4 +1,4 @@
-# 📡 Monitoramento Inteligente de Odores (MQ-137)
+#  Monitoramento Inteligente de Odores (MQ-137)
 
 ## Guia de Execução Local
 
