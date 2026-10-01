@@ -78,8 +78,8 @@ if dados_sensor:
 else:
     st.info("Aguardando os dados do sensor no Firebase...")
 # Opcional: Mostrar um pequeno aviso visual de que a página está a ser atualizada
-st.caption("Atualiza cada 5 segundos...")
+st.caption("Atualiza cada 20 segundos...")
 
-# Aguarda 5 segundos e força a página a recarregar-se sozinha
-time.sleep(5)
+# Aguarda 20 segundos e força a página a recarregar-se sozinha
+time.sleep(20)
 st.rerun()
