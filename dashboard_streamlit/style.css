@@ -1,0 +1,19 @@
+/* style.css */
+
+/* Estilo dos blocos de métricas (Cards) */
+div[data-testid="metric-container"] {
+    background-color: #1E1E2E;
+    border: 1px solid #2B2B40;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease-in-out;
+}
+
+div[data-testid="metric-container"]:hover {
+    transform: translateY(-5px);
+}
+
+/* Esconder o menu padrão do Streamlit e o rodapé para visual mais limpo */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
