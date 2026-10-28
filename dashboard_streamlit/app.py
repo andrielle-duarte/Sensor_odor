@@ -4,28 +4,14 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import time
 import json
-import os
 
-# 1. Configuração da Página
+# Configuração da Página
 st.set_page_config(
-    page_title="Monitoramento de Odores",
-    layout="wide",
-    initial_sidebar_state="collapsed"
+    page_title="Relatório Técnico - Sensor MQ-137",
+    layout="wide"
 )
 
-# 2. Carregar CSS Externo
-def carregar_css(nome_arquivo):
-    diretorio_atual = os.path.dirname(os.path.abspath(__file__))
-    caminho_css = os.path.join(diretorio_atual, nome_arquivo)
-    try:
-        with open(caminho_css) as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-    except FileNotFoundError:
-        st.warning(f"Arquivo {nome_arquivo} não encontrado.")
-
-carregar_css("style.css")
-
-# 3. Inicialização do Firebase
+# Inicialização do Firebase
 @st.cache_resource
 def init_firebase():
     if not firebase_admin._apps:
@@ -39,10 +25,10 @@ def init_firebase():
 
 db = init_firebase()
 
-# Cabeçalho Limpo
-st.title("Monitoramento de Qualidade do Ar")
-st.markdown("Sensor de Amônia **MQ-137** | Banheiro 01")
-st.write("") 
+# Cabeçalho Formal
+st.title("Relatório Técnico: Monitoramento de Qualidade do Ar")
+st.markdown("Registro contínuo dos níveis de concentração de compostos orgânicos voláteis (COVs) e amônia via sensor IoT MQ-137.")
+st.divider()
 
 def fetch_data():
     docs = db.collection("leituras_odor").order_by(
@@ -58,7 +44,6 @@ dados_sensor = fetch_data()
 
 if dados_sensor:
     df = pd.DataFrame(dados_sensor)
-    
     df['Hora'] = pd.to_datetime(df['data_hora_legivel']).dt.strftime('%H:%M:%S')
     
     leitura_atual = df.iloc[0]
@@ -70,59 +55,49 @@ if dados_sensor:
         variacao = intensidade - intensidade_anterior
     else:
         variacao = 0
-        
-    sinal_variacao = "+" if variacao > 0 else ""
 
-    # Lógica de Cores Dinâmicas
+    # Lógica de Classificação Científica
     if intensidade < 40:
-        cor_hex = "#00FF88" 
-        estado_texto = "AMBIENTE PURIFICADO"
-        icone = "✨"
+        status = "Nível Aceitável"
+        alerta = st.success
     elif intensidade < 70:
-        cor_hex = "#FFCC00" 
-        estado_texto = "ODOR EM ELEVAÇÃO"
-        icone = "⚠️"
+        status = "Elevação Detectada"
+        alerta = st.warning
     else:
-        cor_hex = "#FF3366" 
-        estado_texto = "HIGIENIZAÇÃO URGENTE"
-        icone = "🚨"
+        status = "Saturação Crítica"
+        alerta = st.error
 
-    # 4. Super Card renderizado com as classes do style.css e cores em linha
-    html_card = f"""
-    <div class="super-card" style="border: 1px solid {cor_hex}50;">
-        <span class="card-subtitle">Nível de Saturação Atual</span>
-        
-        <div class="card-number" style="color: {cor_hex}; text-shadow: 0 0 30px {cor_hex}40;">
-            {intensidade}<span class="card-percent" style="color: {cor_hex}AA;">%</span>
-        </div>
-        
-        <div class="card-status-text">
-            {icone} {estado_texto}
-        </div>
-        
-        <div class="card-metrics-footer">
-            <span>Atualizado às: <b>{hora_atualizacao}</b></span>
-            <span>|</span>
-            <span>Tendência: <b>{sinal_variacao}{variacao}%</b></span>
-        </div>
-    </div>
-    """
+    # Seção 1: Resumo Atual
+    st.subheader("1. Síntese dos Dados Atuais")
+    alerta(f"Diagnóstico de Ambiente: {status} (Intensidade relativa de {intensidade}% registrada às {hora_atualizacao}).")
     
-    st.markdown(html_card, unsafe_allow_html=True)
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric(label="Intensidade de Odor", value=f"{intensidade}%", delta=f"{variacao}%", delta_color="inverse")
+    col2.metric(label="Tensão Elétrica Lida", value=f"{leitura_atual.get('voltage_v', 0):.2f} V")
+    col3.metric(label="Sinal Analógico (ADC)", value=leitura_atual.get('raw_adc', 0))
+    col4.metric(label="Status do Hardware", value=leitura_atual.get('sensor_status', 'OK'))
+
+    st.divider()
     
-    # Gráfico 
-    st.markdown('<h3 class="chart-title">📉 HISTÓRICO DAS ÚLTIMAS LEITURAS</h3>', unsafe_allow_html=True)
+    # Seção 2: Gráfico
+    st.subheader("2. Evolução Temporal da Concentração")
     df_grafico = df.iloc[::-1].set_index('Hora')[['intensity_percent']]
-    st.area_chart(data=df_grafico, height=300, color=cor_hex)
+    st.line_chart(data=df_grafico, height=350)
     
     st.divider()
     
-    with st.expander("Visualizar Matriz de Dados (Dev Mode)"):
-        st.dataframe(df[['data_hora_legivel', 'intensity_percent', 'voltage_v', 'raw_adc']], use_container_width=True)
+    # Seção 3: Tabela Aberta e Renomeada
+    st.subheader("3. Matriz de Registros Analíticos")
+    st.markdown("Amostragem bruta das últimas 20 leituras capturadas no banco de dados Firestore.")
+    
+    df_display = df[['data_hora_legivel', 'intensity_percent', 'voltage_v', 'raw_adc', 'sensor_status']].copy()
+    df_display.columns = ['Data e Hora do Registro', 'Intensidade (%)', 'Tensão (V)', 'ADC Bruto', 'Integridade']
+    st.dataframe(df_display, use_container_width=True)
         
 else:
-    st.info("Aguardando os dados do sensor no Firebase...")
+    st.info("Aguardando sincronização de dados com o servidor MQTT/Firebase...")
 
-# Recarregamento automático
+# Rodapé de atualização
+st.caption("Protocolo de amostragem configurado para atualização automática a cada 20 segundos.")
 time.sleep(20)
 st.rerun()
