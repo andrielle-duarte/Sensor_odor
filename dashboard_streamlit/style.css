@@ -1,19 +1,68 @@
-/* style.css */
+/* Ocultar elementos padrão do Streamlit para visual de aplicativo */
+#MainMenu { visibility: hidden; }
+footer { visibility: hidden; }
+header { visibility: hidden; }
 
-/* Estilo dos blocos de métricas (Cards) */
-div[data-testid="metric-container"] {
-    background-color: #1E1E2E;
-    border: 1px solid #2B2B40;
-    padding: 15px 20px;
-    border-radius: 12px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease-in-out;
+/* Estrutura Principal do Super Card */
+.super-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, #151520, #1e1e2e);
+    padding: 50px 20px;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    margin-bottom: 40px;
 }
 
-div[data-testid="metric-container"]:hover {
-    transform: translateY(-5px);
+/* Textos e Tipografia do Card */
+.card-subtitle {
+    font-size: 18px;
+    color: #8892B0;
+    font-family: sans-serif;
+    letter-spacing: 3px;
+    text-transform: uppercase;
 }
 
-/* Esconder o menu padrão do Streamlit e o rodapé para visual mais limpo */
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
+.card-number {
+    font-size: 130px;
+    font-weight: 900;
+    line-height: 1.1;
+    margin: 10px 0;
+    font-family: 'Arial Black', sans-serif;
+}
+
+.card-percent {
+    font-size: 60px;
+}
+
+.card-status-text {
+    font-size: 26px;
+    font-weight: bold;
+    color: #FFFFFF;
+    letter-spacing: 1px;
+}
+
+/* Rodapé interno do Card (Data e Tendência) */
+.card-metrics-footer {
+    margin-top: 30px;
+    padding: 10px 25px;
+    background-color: rgba(255,255,255,0.05);
+    border-radius: 50px;
+    color: #A0AEC0;
+    font-size: 16px;
+    display: flex;
+    gap: 20px;
+}
+
+.card-metrics-footer b {
+    color: white;
+}
+
+/* Título do Gráfico */
+.chart-title {
+    color: #8892B0;
+    font-size: 18px;
+    letter-spacing: 2px;
+}
